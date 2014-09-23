@@ -5,6 +5,7 @@
  */
 
 package connection;
+import java.util.ArrayList;
 
 /**
  *
@@ -14,6 +15,7 @@ public class TableBean {
 
     private String schema;
     private String table;
+    private ArrayList<String> triggers = new ArrayList<>();
     
     public String getSchema() {
         return schema;
@@ -29,5 +31,17 @@ public class TableBean {
 
     public void setTable(String table) {
         this.table = table;
+    }
+    
+    public ArrayList<String> getTriggers() {
+        return triggers;
+    }
+
+    public void setTriggers(ArrayList<String> triggers) {
+        this.triggers = triggers;
+    }
+
+    public void addTrigger(String trigger) {
+        this.triggers.add(trigger);
     }
 }

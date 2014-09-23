@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package system;
 
 import java.io.IOException;
@@ -13,14 +12,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author lfcanol
+ * @author felipe
  */
-@WebServlet(name = "Login", urlPatterns = {"/Login"})
-public class Login extends HttpServlet {
+@WebServlet(name = "Project", urlPatterns = {"/project"})
+public class Project extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,17 +31,13 @@ public class Login extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+        if (request.getSession().getAttribute("guardiano") == null) {
+            response.sendRedirect("/Guardiano/login.jsp");
+        }
+        response.setContentType("application/json;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            String clave = Config.getProperty(request.getParameter("u"));
-            if(!clave.isEmpty() && clave.equals(request.getParameter("c"))){
-                HttpSession sesion = request.getSession();
-                sesion.setAttribute("guardiano", request.getParameter("u"));
-                request.getRequestDispatcher("/index.jsp").forward(request, response);
-            }else{
-                request.setAttribute("err", "Usuario o contraseña invalidos.");
-                request.getRequestDispatcher("/login.jsp").forward(request, response);
-            }
+
+            out.println("{}");
         }
     }
 
@@ -83,7 +77,7 @@ public class Login extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Servicio de login";
+        return "Short description";
     }// </editor-fold>
 
 }

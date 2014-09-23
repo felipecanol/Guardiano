@@ -20,7 +20,7 @@
                     <div class="panel-heading">Información de acceso a la base de datos</div>
                     <div class="panel-body">
                         <%
-                            connection.ConnPostgres c = new connection.ConnPostgres();
+                            connection.ConnPostgres c = connection.ConnPostgres.getInstance();
                             String tablas[] = request.getParameterValues("tablas[]");
                             if (tablas != null) { %>
                         <ul>

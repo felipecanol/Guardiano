@@ -16,8 +16,8 @@ public class Config {
 
     private final Properties configProp = new Properties();
     private static Config INSTANCE = null;
-    //    private static final String s = "\\";
-    private static final String s = "/";
+    //    private static final String s = "\\"; // For Windows
+    private static final String s = "/"; // For Unix
 
     public static Config getInstance() {
         if (INSTANCE == null) {

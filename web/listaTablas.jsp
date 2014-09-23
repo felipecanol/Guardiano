@@ -27,38 +27,20 @@
                                     <tr>
                                         <th>Esquema</th>
                                         <th>Tabla</th>
+                                        <th>Triggers</th>
                                         <th>Seguimiento</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <%
-                                        if (request.getParameter("host") != null) {
-                                            Config.setProperty("host", request.getParameter("host"));
-                                        }
-                                        if (request.getParameter("origen_usuario") != null) {
-                                            Config.setProperty("origen_usuario", request.getParameter("origen_usuario"));
-                                        }
-                                        if (request.getParameter("origen_clave") != null) {
-                                            Config.setProperty("origen_clave", request.getParameter("origen_clave"));
-                                        }
-                                        if (request.getParameter("origen_base") != null) {
-                                            Config.setProperty("origen_base", request.getParameter("origen_base"));
-                                        }
-                                        if (request.getParameter("audit_usuario") != null) {
-                                            Config.setProperty("audit_usuario", request.getParameter("audit_usuario"));
-                                        }
-                                        if (request.getParameter("audit_clave") != null) {
-                                            Config.setProperty("audit_clave", request.getParameter("audit_clave"));
-                                        }
-                                        if (request.getParameter("audit_base") != null) {
-                                            Config.setProperty("audit_base", request.getParameter("audit_base"));
-                                        }
-                                        connection.ConnPostgres c = new connection.ConnPostgres();
+                                        connection.ConnPostgres c = connection.ConnPostgres.getInstance();
+                                        c.setConfig(request);
                                         ArrayList<TableBean> rs = c.listarTablas();
-                                        if (rs != null) {
-                                            for (TableBean fila : rs) {
-                                                String a = fila.getSchema();
-                                                String b = fila.getTable();
+                                        if (c.getError().isEmpty()) {
+                                            if (rs != null) {
+                                                for (TableBean fila : rs) {
+                                                    String a = fila.getSchema();
+                                                    String b = fila.getTable();
                                     %>
                                     <tr>
                                         <td>
@@ -66,6 +48,19 @@
                                         </td>
                                         <td>
                                             <%= b%>
+                                        </td>
+                                        <td>
+                                            <ul><%
+                                                    for (String trg : fila.getTriggers()) {
+                                                        String t = trg;
+                                                    
+                                                %>
+                                                <li>
+                                                    <%= t%>
+                                                </li>
+                                                <%
+                                                    }
+                                                %></ul>
                                         </td>
                                         <td>
                                             <input type="checkbox" name="tablas[]" value="<%= a%>:<%= b%>" />
@@ -78,7 +73,17 @@
                                             No se pudo conectar a la base de datos o no hay tablas.
                                         </td>
                                     </tr>
-                                    <% }%>
+                                    <% }
+                                    } else {
+                                    %>
+                                    <tr>
+                                        <td colspan="3">
+                                            <%= c.getError()%>
+                                        </td>
+                                    </tr>
+                                    <%
+                                        }
+                                    %>
                                 </tbody>
                             </table>
                             <% if (rs != null) { %>

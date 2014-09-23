@@ -42,11 +42,11 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">Información Auditoría</div>
                                 <div class="panel-body">
-                                    <div class="form-group">
+                                    <div class="form-group hidden">
                                         <label for="host">Usuario</label>
                                         <input name="audit_usuario" value="<%= Config.getProperty("audit_usuario") %>" type="text" class="form-control" id="host" placeholder="Ingrese el host de la base de datos">
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group hidden">
                                         <label for="host">Contraseña</label>
                                         <input name="audit_clave" value="<%= Config.getProperty("audit_clave") %>" type="password" class="form-control" id="host" placeholder="Ingrese el host de la base de datos">
                                     </div>
