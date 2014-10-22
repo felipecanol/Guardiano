@@ -17,7 +17,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">Información de acceso a la base de datos</div>
                     <div class="panel-body">
-                        <form role="form" action="listaTablas.jsp">
+                        <form role="form" action="listaTablas.jsp" method="POST">
                             <div class="form-group">
                                 <label for="host">Host</label>
                                 <input name="host" value="<%= Config.getProperty("host") %>" type="text" class="form-control" id="host" placeholder="Ingrese el host de la base de datos">
