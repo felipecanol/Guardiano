@@ -84,6 +84,7 @@ public class ConnPostgres {
 
     @SuppressWarnings("ConvertToTryWithResources")
     public ArrayList<TableBean> listarTablas() {
+        error="";
         try {
             Connection con = this.connecting();
             if (con != null) {
@@ -120,10 +121,10 @@ public class ConnPostgres {
             Connection con = this.connecting();
             if (con != null) {
                 try (Statement stmt = con.createStatement()) {
-                    String sql = "SELECT tgname FROM pg_trigger t JOIN pg_class c ON t.tgrelid=c.oid WHERE relname='" + table + "' AND tgname like 'trigger_auditor_" + schema + "%'";
+                    String sql = "SELECT tgname,tgenabled FROM pg_trigger t JOIN pg_class c ON t.tgrelid=c.oid WHERE relname='" + table + "' AND tgname like 'trigger_auditor_" + schema + "%'";
                     try (ResultSet rs = stmt.executeQuery(sql)) {
                         while (rs.next()) {
-                            lista.add(rs.getString("tgname"));
+                            lista.add(rs.getString("tgname") + ";" + rs.getString("tgenabled"));
                         }
                         rs.close();
                     }
@@ -138,6 +139,31 @@ public class ConnPostgres {
             error += e.getMessage();
         }
         return null;
+    }
+
+    public boolean activarTriggers(String schema, String table, String trigger, boolean activo) {
+        try {
+            Connection con = this.connecting();
+            if (con != null) {
+                Statement stmt = con.createStatement();
+                String cmd = "ENABLE";
+                if (!activo) {
+                    cmd = "DISABLE";
+                }
+                String sql = "ALTER TABLE " + schema + "." + table + " " + cmd + " TRIGGER " + trigger + ";";
+                System.err.println(sql);
+                stmt.execute(sql);
+                stmt.close();
+
+                con.close();
+                return true;
+            } else {
+                error += "Error en la conexion con la base de datos";
+            }
+        } catch (SQLException e) {
+            error += e.getMessage();
+        }
+        return false;
     }
 
     public void borrarTriggers(String schema, String table) {
@@ -234,12 +260,12 @@ public class ConnPostgres {
                         funcion = funcion.replaceAll("NEW.", "OLD.");
                         stmt.execute(funcion);
 
-                        String trigger = "CREATE TRIGGER trigger_auditor_" + schema + "_" + nombre + "\n"
+                        String trigger = "DROP TRIGGER IF EXISTS trigger_auditor_" + schema + "_" + nombre + " ON " + nombre + ";CREATE TRIGGER trigger_auditor_" + schema + "_" + nombre + "\n"
                                 + "AFTER INSERT OR UPDATE ON \"" + nombre + "\"\n"
                                 + "    FOR EACH ROW EXECUTE PROCEDURE auditor_" + schema + "_" + nombre + "();";
                         stmt.execute(trigger);
 
-                        trigger = "CREATE TRIGGER trigger_auditor_" + schema + "_" + nombre + "_del\n"
+                        trigger = "DROP TRIGGER IF EXISTS trigger_auditor_" + schema + "_" + nombre + "_del ON " + nombre + ";CREATE TRIGGER trigger_auditor_" + schema + "_" + nombre + "_del\n"
                                 + "AFTER DELETE ON \"" + nombre + "\"\n"
                                 + "    FOR EACH ROW EXECUTE PROCEDURE auditor_" + schema + "_" + nombre + "_del();";
                         stmt.execute(trigger);
