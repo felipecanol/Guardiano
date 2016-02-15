@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -27,6 +29,7 @@ public class ConnPostgres {
     private String audit_clave;
     private String audit_base;
     private String error = "";
+    private Connection c = null;
     private static final ConnPostgres INSTANCE = new ConnPostgres();
 
     public void setConfig(HttpServletRequest request) {
@@ -65,26 +68,30 @@ public class ConnPostgres {
     }
 
     public Connection connecting() {
-
-        String driver = "org.postgresql.Driver";
-        String connectString = "jdbc:postgresql://" + host + "/" + origen_base;
-        String user = origen_usuario;
-        String password = origen_clave;
-        try {
-            Class.forName(driver);
-            Connection con = DriverManager.getConnection(connectString, user, password);
-            return con;
-        } catch (ClassNotFoundException e) {
-            System.err.println("No se encontro el Driver de conexión");
-        } catch (SQLException e) {
-            System.err.println("No se pudo conectar a la base de datos.");
+        if (this.c == null) {
+            String driver = "org.postgresql.Driver";
+            String connectString = "jdbc:postgresql://" + host + "/" + origen_base;
+            String user = origen_usuario;
+            String password = origen_clave;
+            try {
+                Class.forName(driver);
+                Connection con = DriverManager.getConnection(connectString, user, password);
+                this.c = con;
+                return this.c;
+            } catch (ClassNotFoundException e) {
+                System.err.println("No se encontro el Driver de conexión");
+            } catch (SQLException e) {
+                System.err.println("No se pudo conectar a la base de datos.");
+            }
+            return null;
+        } else {
+            return this.c;
         }
-        return null;
     }
 
     @SuppressWarnings("ConvertToTryWithResources")
     public ArrayList<TableBean> listarTablas() {
-        error="";
+        error = "";
         try {
             Connection con = this.connecting();
             if (con != null) {
@@ -103,7 +110,8 @@ public class ConnPostgres {
                 }
                 rs.close();
                 stmt.close();
-                con.close();
+                //con.close();
+
                 return lista;
             } else {
                 error += "Error en la conexion con la base de datos";
@@ -130,7 +138,7 @@ public class ConnPostgres {
                     }
                     stmt.close();
                 }
-                con.close();
+                //con.close();
                 return lista;
             } else {
                 error += "Error en la conexion con la base de datos";
@@ -155,7 +163,7 @@ public class ConnPostgres {
                 stmt.execute(sql);
                 stmt.close();
 
-                con.close();
+//                con.close();
                 return true;
             } else {
                 error += "Error en la conexion con la base de datos";
@@ -182,7 +190,7 @@ public class ConnPostgres {
                         stmt.close();
                     }
                 }
-                con.close();
+//                con.close();
             } else {
                 error += "Error en la conexion con la base de datos";
             }
@@ -274,7 +282,7 @@ public class ConnPostgres {
                         return true;
                     }
                 }
-                con.close();
+//                con.close();
             } else {
                 System.err.println("Error en la conexion con la base de datos");
             }
@@ -282,6 +290,17 @@ public class ConnPostgres {
             System.err.println(e.getMessage());
         }
         return false;
+    }
+
+    public void close() {
+        Connection con = this.connecting();
+        if (con != null) {
+            try {
+                con.close();
+            } catch (SQLException ex) {
+                System.err.println("Error al cerrar la conexión de BD");
+            }
+        }
     }
 
     public String getError() {

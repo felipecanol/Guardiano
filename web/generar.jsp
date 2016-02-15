@@ -28,6 +28,7 @@
                                     String partes[] = tablas[i].split(":");
                                     String triggers[] = request.getParameterValues("trg_" + partes[0] + "_" + partes[1] + "[]");
                                     boolean resultado = c.crearAuditoriaPorTabla(partes[0], partes[1]);
+                                    Thread.sleep(10);
                             %>
                             <li>
                                 <% if (resultado) {%>
@@ -79,7 +80,7 @@
                                 }
                                 %>
                             </li>
-                            <%}%>
+                            <%} c.close();%>
                         </ul>
                         <%}%>
                     </div>
